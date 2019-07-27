@@ -1,0 +1,74 @@
+/* UNIVERSIDAD TECNICA DEL NORTE
+ *         FICA-CIERCOM
+ * NOMBRE: ANGEL RUIZ
+ * FECHA: 28-07-2019
+ * TEMA:Realizar un programa que reinicie el sistema al tener la hora 00:10:50. 
+ * Cuando vuelva a funcionar, deberá empezar con la hora 00:11:10. 
+ * EL proceso se observa en una LCD.
+ *  
+ */
+#include<EEPROM.h>
+#include <MsTimer2.h>
+#include <LiquidCrystal.h>
+
+#include<avr/power.h>
+#include<avr/sleep.h>
+#include<avr/wdt.h>
+
+int horero=00; // variable para hora
+int minutero=00; // variable para minutos
+int segundero=00;// variable para segundos
+int reinicio = 0; 
+LiquidCrystal lcd(13,12,11,10,9,8);// posiciones del lcd
+
+void setup() {
+   lcd.begin(16, 2);// inicializa la lcd
+  Serial.begin(9600);// inicializa la comunicacion serial
+  MsTimer2::set(100,rutina);// parametros el timer
+  MsTimer2::start();// inicializa el timer
+//  EEPROM.update(0,0);  // para que el programa se vuelva a poner en cero
+//  EEPROM.update(1,0);
+//  EEPROM.update(2,0);
+  horero=EEPROM.read(0); // guarda la hora
+  minutero=EEPROM.read(1);// guarda los minutos
+  segundero=EEPROM.read(2);// guarda los segundos
+}
+
+void loop() {
+}
+void rutina(){ // metodo para el timer el cual contara y mostrara el reloj
+  segundero++; // contador empieza a contar a cada segundo  
+   lcd.setCursor(12, 0);// posicion el la lcd para los segundos
+    lcd.print(segundero); // muestra en la lcd
+     lcd.setCursor(10,0);
+      lcd.print(":");
+       lcd.setCursor(8, 0);
+        lcd.print(minutero);
+         lcd.setCursor(6,0);
+          lcd.print(":");
+           lcd.setCursor(4, 0);
+            lcd.print(horero);
+ if ( segundero == 59){ // control para minutero cuando el segundero llegue a 59
+    minutero++;// comienza a contar minutero
+     lcd.setCursor(8, 0);
+     lcd.print(minutero);// se imprime los minutos
+     segundero=0;
+  }
+ if ( minutero == 59){// control del munutero 
+    horero++;// comienza el conteo para hora
+     lcd.setCursor(4, 0);
+     lcd.print(horero);// se imprime la hora
+     minutero=0;
+  }
+  if ( horero == 23){// control de hora cuando llega a 23:59:59 se imprime en 00:00:00
+      horero=0;
+     minutero=0;
+      segundero=0;
+    }
+  if(horero==0 && minutero==10 && segundero==49){// si el reloj llega a la hora establecida el sistema de reinicia
+    wdt_enable(WDTO_8S);
+    EEPROM.update(0,0);
+    EEPROM.update(1,11);
+    EEPROM.update(2,10);  // despues que se reinicia el sistema la hora empieza con la hora 00:11:10
+  }
+}
