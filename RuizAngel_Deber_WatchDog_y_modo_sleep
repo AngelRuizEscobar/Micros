@@ -1,0 +1,26 @@
+/* UNIVERSIDAD TECNICA DEL NORTE
+ *         FICA-CIERCOM
+ * NOMBRE: ANGEL RUIZ
+ * FECHA: 30-07-2019
+Realizar un sistema que permita en intervalos de tiempo (puede ser cada 2 segundos )
+establecidos dormir al sistema y levantarse para lecturas de un conversor análogo digital. 
+Toma la lectura, la envía por comunicación serial y se vuelve a dormir.
+*/
+#include <LowPower.h>
+#include <MsTimer2.h>
+float entrada;
+void setup() {
+  Serial.begin(9600); // se establece la comunicacion serial
+  MsTimer2:: set(1000,cont); // se realiza el conteo de un segundo con la rutina que se quiere realizar
+  MsTimer2:: start(); // se inicia el timer 
+  entrada= (analogRead(0)*5.00)/1023; // tomo el dato analogo y lo multiplico por 5 y se divide para 1023 de los datos
+  Serial.println("Su entrada es:");
+  Serial.println(entrada); // imprime el dato que se obtiene del analogo
+  
+}
+
+void loop() {
+}
+void cont(){// es el void para que el sistema que duerma y se levante 
+  LowPower.powerDown(SLEEP_2S, ADC_OFF, BOD_OFF);//
+  }
